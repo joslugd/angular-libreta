@@ -1,0 +1,62 @@
+<link href="bower_components/polymer/polymer.html" rel="import">
+
+<dom-module id="notes-notelist">
+  <template>
+    <style>
+      :host {
+        width: 100%;
+      }
+    </style>
+
+    <template is="dom-repeat" items="[[notes]]">
+      <notes-noteitem note="[[item]]" on-item-clicked="_handleItemClick"
+        on-delete-clicked="_handleItemDeleteClick"></notes-noteitem>
+    </template>
+  </template>
+
+  <script>
+    class NotesList extends Polymer.Element {
+      static get is() { return "notes-notelist"; }
+      static get properties() {
+        return {
+          notes: {
+            type: Array
+          },
+          selectedNote: {
+            type: Object,
+            value: null,
+            observer: '_handleSelectionChange'
+          }
+        }
+      }
+
+      _handleItemClick(event) {
+        this.dispatchEvent(
+          new CustomEvent('item-clicked',
+            {detail: { note: event.model.item }}));
+      }
+
+      _handleItemDeleteClick(event) {
+        this.dispatchEvent(
+          new CustomEvent('delete-clicked',
+            {detail: { note: event.model.item }}));
+      }
+
+      _handleSelectionChange(newValue, oldValue) {
+        if (newValue === null || !this.notes) {
+          return;
+        } 
+
+        // Selecciona SOLO la última nota sobre la que se ha hecho click.
+        console.log(this.notes);
+        for (var i = 0; i < this.notes.length; i++) {
+          let shouldBeSelected = this.notes[i] === newValue;
+          this.notes[i].selected = shouldBeSelected;
+          this.notifyPath(['notes', i, 'selected']);
+        }
+      }
+    }
+
+    customElements.define(NotesList.is, NotesList);
+  </script>
+</dom-module>

@@ -1,0 +1,133 @@
+<link href="bower_components/polymer/polymer.html" rel="import">
+
+<dom-module id="notes-noteitem">
+  <template>
+    <style>
+      #container {
+        margin-bottom: 1px;
+        height: 70px;
+        cursor: pointer;
+        box-sizing: border-box;
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        display: flex;
+      }
+
+      #button {
+        padding: 5px 10px;
+        height: 70px;
+        overflow: hidden;
+        background: #2f4f4f;
+        box-sizing: border-box;
+        transition: transform 0.1s, border-left 0.1s;
+        transition-timing-function: ease-out;
+        flex-grow: 2;
+      }
+
+      #button.selected {
+        border-left: 7px solid tomato;
+      }
+
+      #button:hover {
+        background: #3f5f5f;
+      }
+
+      #button:active {
+        background: #4f6f6f;
+        transform: scale(0.95);
+      }
+
+      #note-title {
+        display: block;
+        height: 35px;
+        line-height: 35px;
+        font-size: 1.4em;
+        color: white;
+        overflow: hidden;
+      }
+
+      #note-excerpt {
+        display: block;
+        height: 25px;
+        line-height: 25px;
+        font-size: 0.7em;
+        color: lightgray;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      #delete-button {
+        color: black;
+        background: #4f6f6f;
+        flex: 0 0 25px;
+        height: 70px;
+        font-size: 25px;
+        line-height: 70px;
+        text-align: center;
+        transition: color 0.2s, background-color 0.2s;
+        display: inline-block;
+        box-sizing: border-box;
+      }
+
+      #delete-button:hover {
+        color: white;
+        background: red;
+      }
+
+      #delete-button:active {
+        color: white;
+        font-weight: bolder;
+      }
+
+      #delete-button:before {
+        content: "✕";
+      }
+    </style>
+    
+    <div id="container">
+      <div id="button" on-click="_handleClick"
+          class$="{{_getClassForNote(selected)}}">
+        <div id="note-title">[[note.title]]</div>
+        <div id="note-excerpt">[[note.content]]</div>
+      </div>
+      <div id="delete-button" on-click="_handleDeleteClicked"></div>
+    </div>
+  </template>
+
+  <script>
+    class NoteItem extends Polymer.Element {
+      static get is() { return "notes-noteitem"; }
+      static get properties() {
+        return {
+          note: { type: Object },
+          selected: { type: Boolean, computed: '_computeSelected(note.selected)' }
+        }
+      }
+
+      _handleClick(e) {
+        this.dispatchEvent(
+          new CustomEvent('item-clicked',
+            {detail: { note: this.note }}));
+      }
+
+      _handleDeleteClicked(e) {
+        this.dispatchEvent(
+          new CustomEvent('delete-clicked',
+            {detail: { note: this.note }}));
+      }
+
+      _getClassForNote(selected) {
+        return selected ? "selected" : "";
+      }
+
+      _computeSelected(selected) {
+        return selected;
+      }
+    }
+
+    customElements.define(NoteItem.is, NoteItem);
+  </script>
+</dom-module>

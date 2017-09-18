@@ -1,0 +1,233 @@
+<link href="bower_components/polymer/polymer.html" rel="import">
+
+<dom-module id="notes-skeleton">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+      }
+      
+      #notes-list-panel {
+        background: darkgray;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      #content-panel {
+        background: lightgray;
+        flex-grow: 2;
+        overflow-x: hidden;
+        position: relative;
+      }
+        
+      .create-button {
+        background: darkslateblue;
+        color: white;
+        display: block;
+        margin-top: 1px;
+      }
+
+      @media (max-width: 650px) {
+        :host {
+          flex-direction: column;
+        }
+
+        #notes-list-panel {
+          height: 0;
+          transition: height 0.3s;
+        }
+
+        #notes-list-panel.collapsed {
+          height: calc(100vh - 50px);
+        }
+
+        #panel-controls {
+          height: 50px;
+          background: #222;
+          flex-grow: 0;
+          flex-shrink: 0;
+          text-align: right;
+        }
+
+        #app-title {
+          display: none;
+        }
+        
+        #notelist-container {
+          height: calc(100vh - 50px);
+          overflow-y: auto;
+        }
+        
+        #toggle-button {
+          font-size: 18pt;
+          color: white;
+          background: black;
+          width: 25px;
+          height: 50px;
+          line-height: 50px;
+          text-align: center;
+          cursor: pointer;
+        }
+
+        #toggle-button:before {
+          content: "v";
+        }
+
+        #toggle-button.collapsed:before {
+          content: "^";
+        }
+      }
+
+      @media (min-width: 650px) {
+        :host {
+          flex-direction: row;
+        }
+
+        #notes-list-panel {
+          width: 30%;
+          transition: width 0.3s;
+        }
+
+        #notes-list-panel.collapsed {
+          width: 0px;
+        }
+
+        #panel-controls {
+          width: 25px;
+          background: #222;
+        }
+
+        #app-title {
+          height: 50px;
+          text-align: center;
+          background: #333;
+          overflow: hidden;
+        }
+
+        #app-title h2 {
+          line-height: 50px;
+          color: white;
+          margin: 0;
+        }
+
+        #help-button {
+          margin: 5px;
+          height: 30px;
+          width: 30px;
+          line-height: 30px;
+          display: inline-block;
+          background: cornflowerblue;
+          color: white;
+          border-radius: 15px;
+          text-align: center;
+          text-shadow: 1px 1px 0px rgba(0,0,0,0.75);
+          cursor: pointer;
+        }
+
+        #notelist-container {
+          height: calc(100vh - 50px);
+          overflow-y: auto;
+        }
+
+        #toggle-button {
+          font-size: 18pt;
+          color: white;
+          background: black;
+          width: 25px;
+          height: 50px;
+          line-height: 50px;
+          text-align: center;
+          cursor: pointer;
+        }
+
+        #toggle-button:before {
+          content: "<";
+        }
+
+        #toggle-button.collapsed:before {
+          content: ">";
+        }
+      }
+    </style>
+
+    <div id="notes-list-panel">
+      <div id="app-title">
+        <h2>Mi Libreta <span id="help-button"
+          on-click="_handleHelpClick">?</span></h2>
+      </div>
+      <!-- Lista de la izquierda. -->
+      <div id="notelist-container">
+        <notes-notelist id="notelist" 
+          on-item-clicked="_handleNoteSelect"
+          on-delete-clicked="_handleNoteDeleteClicked"
+          notes="[[notes]]" selected-note="[[selectedNote]]">
+        </notes-notelist>
+        <paper-button raised class="create-button" on-click="_handleAddNote">
+          Crear nota
+        </paper-button>
+      </div>
+    </div>
+    <div id="panel-controls">
+      <div id="toggle-button" on-click="toggleLeftPanel"></div>
+    </div>
+    <div id="content-panel">
+      <slot id="content"></slot>
+    </div>
+  </template>
+
+  <script>
+    class NotesSkeleton extends Polymer.Element {
+      static get is() { return "notes-skeleton"; }
+
+      static get properties() {
+        return {
+          notes: Array,
+          selectedNote: { type: Object, value: null }
+        }
+      }
+
+      toggleLeftPanel() {
+        // Oculta/muestra el panel lateral.
+        let toggleButton = this.$["toggle-button"];
+        let leftPanel = this.$["notes-list-panel"];
+
+        toggleButton.classList.toggle("collapsed");
+        leftPanel.classList.toggle("collapsed");
+      }
+
+      notifyNoteEdited(noteIndex, title, content) {
+        // Notificar a Polymer de que las propiedades de la nota han sido
+        // modificadas, de forma que se actualice visualmente el contenido.
+        this.set(['notes', noteIndex, 'title'], title);
+        this.set(['notes', noteIndex, 'content'], content);
+      }
+
+      _handleHelpClick(event) {
+        this.dispatchEvent(
+          new CustomEvent('help-clicked', { detail: {} }));
+      }
+
+      _handleNoteSelect(event) {
+        this.dispatchEvent(
+          new CustomEvent('note-selected',
+            {detail: { note: event.detail.note }}));
+      }
+
+      _handleNoteDeleteClicked(event) {
+        this.dispatchEvent(
+          new CustomEvent('note-delete',
+            {detail: { note: event.detail.note }}));
+      }
+
+      _handleAddNote(event) {
+        this.dispatchEvent(
+          new CustomEvent('add-note', {detail: { }}));
+      }
+    }
+
+    customElements.define(NotesSkeleton.is, NotesSkeleton);
+  </script>
+</dom-module>

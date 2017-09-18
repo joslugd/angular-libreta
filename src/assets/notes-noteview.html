@@ -1,0 +1,72 @@
+<link href="bower_components/polymer/polymer.html" rel="import">
+
+<dom-module id="notes-noteview">
+  <template>
+    <style>
+      #container {
+        width: 100%;
+        height: 100vh;
+        background-color: lightgray;
+        overflow-y: auto;
+      }
+
+      #note-title {
+        text-align: center;
+        background: #444;
+        color: white;
+        font-weight: bold;
+        height: 40px;
+        line-height: 40px;
+      }
+
+      #note-content {
+        box-sizing: border-box;
+        margin: 10px;
+        width: calc(100% - 20px);
+        padding: 15px;
+        background: white;
+        box-shadow: 2px 2px 4px 0px rgba(0,0,0,0.49);
+      }
+
+      #note-buttons {
+        margin-top: 10px;
+        text-align: right;
+        padding-right: 15px;
+      }
+
+      .edit-note-button {
+        background: goldenrod;
+        margin-bottom: 10px;
+      }
+    </style>
+
+    <div id="container">
+      <div id="note-title">[[title]]</div>
+      <div id="note-content"><slot></slot></div>
+
+      <div id="note-buttons">
+        <paper-button raised class="edit-note-button"
+          on-click="_handleEditClicked">Editar nota</paper-button>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    class NoteView extends Polymer.Element {
+      static get is() { return 'notes-noteview'; }
+
+      static get properties() {
+        return {
+          title: String
+        };
+      }
+
+      _handleEditClicked(event) {
+        this.dispatchEvent(
+          new CustomEvent('edit-clicked', {detail: { }}));
+      }
+    }
+
+    customElements.define(NoteView.is, NoteView);
+  </script>
+</dom-module>
